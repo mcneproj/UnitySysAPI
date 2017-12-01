@@ -9,7 +9,7 @@ But with the Sys API you can simply use:
 ```Sys.CaptureScreenshot(this, “Path/To/Screenshot.png”);```
 And the Sys API will handle all of the texture encoding and file saving. Continue to _Using the Sys API_ to get started.
 
-__*If you are looking for information about contributing to the UnitySysAPI, check out [this guide](UnitySysAPI/Documentation/Contributing%20to%20the%20Sys%20API).*__
+__*If you are looking for information about contributing to the UnitySysAPI, check out [this guide](/Documentation/Contributing_to_the_SysAPI.md).*__
 
 ## Updating the Sys API via Unity Editor
 In the _Sys API_ source package is two c# scripts that handle updating the API via the unity editor.
@@ -17,13 +17,13 @@ To update the Sys API navigate to _‘Tools/SysAPI/Options’_ or alternatively 
 ![1.gif](/Documentation/Images/1.gif)
 
 You will see a new window appear that looks something like this:
-![2.png](UnitySysAPI/Documentation/Images/2.png)
+![2.png](/Documentation/Images/2.png)
 
 The options window contains three buttons: __Check For Updates; Force Update;__ and __Example__. Pressing _‘Check for Updates’_ will check your version versus the latest version of the Sys API. If you have the latest version you will receive this message:
-![3.png](UnitySysAPI/Documentation/Images/3.png)
+![3.png](/Documentation/Images/3.png)
 
 If there is an update available the newest _SYS_MASTER.cs_ will be downloaded and saved to _‘/Assets/Plugins/SysAPI/SYS_MASTER.cs’_. After updating this message will display in the console:
-![4.png](UnitySysAPI/DocumentationImages/4.png)
+![4.png](/DocumentationImages/4.png)
 
 If somehow _SYS_MASTER.cs_ becomes corrupted you can press the _‘Force Update’_ button to grab the latest update from the server.
 
@@ -86,7 +86,7 @@ Image loading is much like loading data in the section above. At this time the S
 Lastly we will look at System Information logging methods.
 
 ### System Information
-The Sys API’s System Information methods are very useful for logging users system information. This section of the API essentially layers the _UnityEngine.SystemInfo_ variables into the Sys API. For example instead of calling `SystemInfo.batteryLevel` it can be shortened using `Sys.batteryLevel`. 
+The Sys API’s System Information methods are very useful for logging users system information. This section of the API essentially layers the _UnityEngine.SystemInfo_ variables into the Sys API. For example instead of calling `SystemInfo.batteryLevel`, you could use  `Sys.batteryLevel` to get the same result. 
 You can export system info into a neatly formatted text file using:
 ```Sys.SaveSystemInfo(“Path/To/Save/SystemInfo.txt”);```
 And of course open the file directory by using:
