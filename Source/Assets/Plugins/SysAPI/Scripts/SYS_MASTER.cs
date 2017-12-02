@@ -1,4 +1,4 @@
-//---SYS_MASTER.cs v1.0.4--- Created by Alpaca Studio [ http://alpaca.studio ]//
+//---SYS_MASTER.cs v1.0.5--- Created by Alpaca Studio [ http://alpaca.studio ]//
 using System.Collections;
 using System.Collections.Generic;
 using System;
@@ -9,24 +9,26 @@ namespace UnityEngine
 {
     public class Sys : MonoBehaviour
     {
-        //Logging Methods//
+
         public static string temp;
         public static List<string> logRaw = new List<string>();
         public static List<string> logData = new List<string>();
         public static Dictionary<string, string> messages = new Dictionary<string, string>();
         public static string lastPath;
 
+	///LOGGING METHODS///
         public static void addMessage(string code, string message)
         {
             messages.Add(code, message);
         }
+		
 		public static void Log (string message, bool showInConsole) {
 			if(message != null){
 				temp = message;
 				if(showInConsole){Debug.Log(message);}
 				Handle(temp);
 			} else {
-				Debug.LogError("[Sys API] ERROR003: Sys.Log(string, bool) has Invalid Arguments: (string) message cannot be null. "+Sys.GetErrorStackTrace());
+				LogError("[Sys API] ERROR003: Sys.Log(string, bool) has Invalid Arguments: (string) message cannot be null. "+Sys.GetErrorStackTrace(),true);
 			}
 		}
 
@@ -55,9 +57,30 @@ namespace UnityEngine
             Log(messages[messageCode].ToString() + " from " + M.ToString() + " ID# " + M.GetInstanceID(), showInConsole);
         }
 
+        public static void LogError(string message)
+        {
+            LogError(message, false);
+        }
+		
+		public static void LogError (string message, bool showInConsole) {
+			if(message != null){
+				temp = message + "  -  " + GetErrorStackTrace(-1);
+				if(showInConsole){Debug.LogError(message);}
+				HandleError(temp);
+			} else {
+				LogError("[Sys API] ERROR003: Sys.LogError(string, bool) has Invalid Arguments: (string) message cannot be null. "+Sys.GetErrorStackTrace(),true);
+			}
+		}
         private static void Handle(string message)
         {
             string output = "[" + System.DateTime.Now + "]: " + message;
+            logData.Add(output);
+            logRaw.Add(message);
+        }
+		
+		 private static void HandleError(string message)
+        {
+            string output = "[" + System.DateTime.Now + "]: ERROR!!! " + message;
             logData.Add(output);
             logRaw.Add(message);
         }
@@ -97,7 +120,7 @@ namespace UnityEngine
                 File.AppendAllText(path, string.Format("{0}{1}", message.ToString(), System.Environment.NewLine));
             }
             lastPath = path;
-            Debug.Log("SysLog.txt saved to default location: " + (Application.persistentDataPath + "/" + Application.productName + "/Logs/SysLog.txt"));
+            Debug.Log("[Sys API] SysLog.txt saved to default location: " + (Application.persistentDataPath + "/" + Application.productName + "/Logs/SysLog.txt"));
         }
 
         // Save the log to the given file path
@@ -110,9 +133,9 @@ namespace UnityEngine
                 File.AppendAllText(path, string.Format("{0}{1}", message.ToString(), System.Environment.NewLine));
             }
             lastPath = path;
-            Debug.Log("SysLog.txt saved to location: " + path);
+            Log("[Sys API] SysLog.txt saved to location: " + path,true);
 			} else {
-				Debug.LogError("[Sys API] ERROR004: Path is null or empty. (EC-SYS-"+GetLine()+")");
+				LogError("[Sys API] ERROR004: Path is null or empty. (EC-SYS-"+GetLine()+")",true);
 			}
         }
 
@@ -127,13 +150,14 @@ namespace UnityEngine
 				}
 				if (openDir) { System.Diagnostics.Process.Start(path); }
 				lastPath = path;
-				Debug.Log("SysLog.txt saved to location: " + path);
-				Debug.Log("Opening Directory: " + path);
+				Log("[Sys API] SysLog.txt saved to location: " + path, true);
+				Log("[Sys API] Opening Directory: " + path, true);
 			} else {
-				Debug.LogError("[Sys API] ERROR004: Path is null or empty. (EC-SYS-"+GetLine()+")");
+				LogError("[Sys API] ERROR004: Path is null or empty. (EC-SYS-"+GetLine()+")",true);
 			}
         }
-	//DIRECTORY CHECKING//
+		
+	///FILE PERSISTANCE///
 		//Creates a new directory
 		private static void CreateDirectory(string path){ 
 			Directory.CreateDirectory(path);
@@ -182,7 +206,7 @@ namespace UnityEngine
 					if (createDispose){ 
 						CreateEmptyFile(path);
 						if(File.Exists(path)){
-							Log("[Sys API] File: "+Path.GetFileName(path)+" sucessfully created. "+GetStackTrace());
+							Log("[Sys API] File: "+Path.GetFileName(path)+" sucessfully created. "+GetStackTrace(),true);
 						}
 						return true;
 					} else {
@@ -242,7 +266,7 @@ namespace UnityEngine
 					}
 				}
 			} else {
-				Debug.LogError("[Sys API] ERROR004: Path is null or empty. (EC-SYS-"+GetLine()+")");
+				LogError("[Sys API] ERROR004: Path is null or empty. (EC-SYS-"+GetLine()+")",true);
 			}
         }
 
@@ -266,7 +290,7 @@ namespace UnityEngine
 					}
 				}
 			} else {
-				Debug.LogError("[Sys API] ERROR004: Path is null or empty. (EC-SYS-"+GetLine()+")");
+				LogError("[Sys API] ERROR004: Path is null or empty. (EC-SYS-"+GetLine()+")",true);
 			}
         }
         // Save the given data to the given file, specifying whether to append or overwrite
@@ -300,7 +324,7 @@ namespace UnityEngine
 					}
 				}
 			} else {
-				Debug.LogError("[Sys API] ERROR004: Path is null or empty. (EC-SYS-"+GetLine()+")");
+				LogError("[Sys API] ERROR004: Path is null or empty. (EC-SYS-"+GetLine()+")",true);
 			}
         }
 		
@@ -335,7 +359,7 @@ namespace UnityEngine
 					}
 				}
 			} else {
-				Debug.LogError("[Sys API] ERROR004: Path is null or empty. (EC-SYS-"+GetLine()+")");
+				LogError("[Sys API] ERROR004: Path is null or empty. (EC-SYS-"+GetLine()+")",true);
 			}
         }
 
@@ -346,7 +370,7 @@ namespace UnityEngine
 				string[] data = File.ReadAllLines(path);
 				return data;
 			} else {
-				Debug.LogError("[Sys API] ERROR004: Path is null or empty. (EC-SYS-"+GetLine()+")");
+				LogError("[Sys API] ERROR004: Path is null or empty. (EC-SYS-"+GetLine()+")",true);
 				return null;
 			}
         }
@@ -357,7 +381,7 @@ namespace UnityEngine
 				string[] data = File.ReadAllLines(path);
 				return data;
 			} else {
-				Debug.LogError("[Sys API] ERROR004: Path is null or empty. (EC-SYS-"+GetLine()+")");
+				LogError("[Sys API] ERROR004: Path is null or empty. (EC-SYS-"+GetLine()+")",true);
 				return null;
 			}
         }
@@ -368,12 +392,12 @@ namespace UnityEngine
 				List<string> data = new List<string>(File.ReadAllLines(path));
 				return data;
 			} else {
-				Debug.LogError("[Sys API] ERROR004: Path is null or empty. (EC-SYS-"+GetLine()+")");
+				LogError("[Sys API] ERROR004: Path is null or empty. (EC-SYS-"+GetLine()+")",true);
 				return null;
 			}
         }
 
-        //Screen Capture Methods//
+    ///SCREEN CAPTURING METHODS///
         public static void CaptureScreenshot(MonoBehaviour instance)
         {
             string path;
@@ -425,7 +449,7 @@ namespace UnityEngine
             return tex;
         }
 
-        //Simple Math Methods//
+    ///ARITHMETIC METHODS///
         public static int Add(params int[] a)
         {
             int sum = 0;
@@ -536,8 +560,148 @@ namespace UnityEngine
             }
             return c;
         }
+		
+	///MISC METHODS///
+		public static string URLAntiCache(){ 
+			return "?t="+System.DateTime.Now.ToString("MMddyyyyhhmmss");
+		}
+		
+        public static string GenerateUniqueID(int length)
+        {
+            int a = 0;
+            string hc = "";
 
-        //System Information Methods//
+            while (a < length)
+            {
+                float r = Random.Range(0.0f, 2);
+                Debug.Log(r);
+                if (r <= 0.999f)
+                {
+                    int v = GetValue();
+                    hc += v.ToString();
+                }
+                if (r >= 1)
+                {
+                    string c = GetCharacter();
+                    hc += c;
+                }
+                a++;
+            }
+
+            return hc;
+        }
+
+        private static int GetValue()
+        {
+            int val = Random.Range(0, 9);
+            return val;
+        }
+
+        private static string GetCharacter()
+        {
+            string[] alp = new string[] { "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z" };
+            string returnChar = alp[Random.Range(0, alp.Length)];
+            return returnChar;
+        }
+		
+	///STACK TRACE METHODS///
+		public static int GetLine(){
+			System.Diagnostics.StackTrace stackTrace = new System.Diagnostics.StackTrace(0,true);
+			System.Diagnostics.StackFrame stackFrame = stackTrace.GetFrame(stackTrace.FrameCount -1);
+			int line = stackFrame.GetFileLineNumber(); 
+			return line;
+		}
+		
+		public static string GetErrorStackTrace(){
+			System.Diagnostics.StackTrace stackTrace = new System.Diagnostics.StackTrace(0,true);
+			System.Diagnostics.StackFrame stackFrame = stackTrace.GetFrame(stackTrace.FrameCount - 1);
+			string file = stackFrame.GetFileName();
+			//string method = stackFrame.GetMethod().ToString();
+			int line = stackFrame.GetFileLineNumber();
+			string trace = string.Format("({0}-{1}-{2})","EC",Path.GetFileName(file),line);			
+			return trace;
+		}
+		public static string GetErrorStackTrace(int frames){
+			System.Diagnostics.StackTrace stackTrace = new System.Diagnostics.StackTrace(0,true);
+			System.Diagnostics.StackFrame stackFrame = stackTrace.GetFrame(stackTrace.FrameCount + frames);
+			string file = stackFrame.GetFileName();
+			//string method = stackFrame.GetMethod().ToString();
+			int line = stackFrame.GetFileLineNumber();
+			string trace = string.Format("({0}-{1}-{2})","EC",Path.GetFileName(file),line);			
+			return trace;
+		}
+		public static string GetStackTrace(){
+			System.Diagnostics.StackTrace stackTrace = new System.Diagnostics.StackTrace(0,true);
+			System.Diagnostics.StackFrame stackFrame = stackTrace.GetFrame(stackTrace.FrameCount -1);
+			string file = stackFrame.GetFileName();
+			string method = stackFrame.GetMethod().ToString();
+			int line = stackFrame.GetFileLineNumber();
+			string trace = string.Format("{0}({1}:{2})",method,Path.GetFileName(file),line);			
+			return trace;
+		}
+		public static string FormatStackTrace(string format){
+			System.Diagnostics.StackTrace stackTrace = new System.Diagnostics.StackTrace(0,true);
+			System.Diagnostics.StackFrame stackFrame = stackTrace.GetFrame(stackTrace.FrameCount -1);
+			string file = stackFrame.GetFileName();
+			string method = stackFrame.GetMethod().ToString();
+			int line = stackFrame.GetFileLineNumber();
+			string trace = string.Format(format,method,Path.GetFileName(file),line);			
+			return trace;
+		}
+		public static string FormatStackTrace(string format, bool getFileName, bool getMethodName, bool getLineNumber){
+			System.Diagnostics.StackTrace stackTrace = new System.Diagnostics.StackTrace(0,true);
+			System.Diagnostics.StackFrame stackFrame = stackTrace.GetFrame(stackTrace.FrameCount -1);
+			string file = stackFrame.GetFileName();
+			string method = stackFrame.GetMethod().ToString();
+			int line = stackFrame.GetFileLineNumber();
+			string trace = null;
+			//int index = 0; //[0 F,M,L] [1 F,M] [2 F,L] [3 M,L] [4 F] [5 L] [6 M] [7 ---]
+			if(getFileName){
+				if(getMethodName && getLineNumber){
+					//index = 0;
+					trace = string.Format(format,Path.GetFileName(file),method,line);
+				}
+				if(getMethodName && !getLineNumber){
+					//index = 1;
+					trace = string.Format(format,Path.GetFileName(file),method);
+				}
+				if(!getMethodName && getLineNumber){
+					//index = 2;
+					trace = string.Format(format,Path.GetFileName(file),line);
+				}
+				if(!getMethodName && !getLineNumber){
+					//index = 4;
+					trace = string.Format(format,Path.GetFileName(file));
+				}
+				return trace;
+			} else {
+				if(getMethodName && getLineNumber){
+					//index = 3;
+					trace = string.Format(format,method,line);
+				}
+				if(!getMethodName && getLineNumber){
+					//index = 5;
+					trace = string.Format(format,line);
+				}
+				if(getMethodName && !getLineNumber){
+					//index = 6;
+					trace = string.Format(format,method);
+				}
+				if(!getMethodName && !getLineNumber){
+					//index = 7;
+					LogError("[Sys API] Invalid Arguments. All cannot be false.",true);
+					trace = "Error!";
+				}
+				return trace;
+			}
+			
+			
+		}
+		
+    }
+	
+	public class Info : MonoBehaviour {
+		//System Information Methods//
         static string temporaryPath;
         static int itemCounter;
 		
@@ -608,7 +772,7 @@ namespace UnityEngine
 				itemCounter = 0;
 				WriteDataToFile(GetSystemInfo(), openDir);
 			} else {
-				Debug.LogError("[Sys API] ERROR004: Path is null or empty. (EC-SYS-"+GetLine()+")");
+				Sys.LogError("[Sys API] ERROR004: Path is null or empty. (EC-SYS-"+Sys.GetLine()+")",true);
 			}
         }
 
@@ -676,80 +840,6 @@ namespace UnityEngine
 
             return sysInfo;
         }
-
-        //Miscellanous Operators//
-        public static string GenerateUniqueID(int length)
-        {
-            int a = 0;
-            string hc = "";
-
-            while (a < length)
-            {
-                float r = Random.Range(0.0f, 2);
-                Debug.Log(r);
-                if (r <= 0.999f)
-                {
-                    int v = GetValue();
-                    hc += v.ToString();
-                }
-                if (r >= 1)
-                {
-                    string c = GetCharacter();
-                    hc += c;
-                }
-                a++;
-            }
-
-            return hc;
-        }
-
-        private static int GetValue()
-        {
-            int val = Random.Range(0, 9);
-            return val;
-        }
-
-        private static string GetCharacter()
-        {
-            string[] alp = new string[] { "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z" };
-            string returnChar = alp[Random.Range(0, alp.Length)];
-            return returnChar;
-        }
 		
-		public static int GetLine(){
-			System.Diagnostics.StackTrace stackTrace = new System.Diagnostics.StackTrace(0,true);
-			System.Diagnostics.StackFrame stackFrame = stackTrace.GetFrame(stackTrace.FrameCount -1);
-			int line = stackFrame.GetFileLineNumber(); 
-			return line;
-		}
-		
-		public static string GetErrorStackTrace(){
-			System.Diagnostics.StackTrace stackTrace = new System.Diagnostics.StackTrace(0,true);
-			System.Diagnostics.StackFrame stackFrame = stackTrace.GetFrame(stackTrace.FrameCount -1);
-			string file = stackFrame.GetFileName();
-			//string method = stackFrame.GetMethod().ToString();
-			int line = stackFrame.GetFileLineNumber();
-			string trace = string.Format("({0}-{1}-{2})","EC",Path.GetFileName(file),line);			
-			return trace;
-		}
-		public static string GetStackTrace(){
-			System.Diagnostics.StackTrace stackTrace = new System.Diagnostics.StackTrace(0,true);
-			System.Diagnostics.StackFrame stackFrame = stackTrace.GetFrame(stackTrace.FrameCount -1);
-			string file = stackFrame.GetFileName();
-			string method = stackFrame.GetMethod().ToString();
-			int line = stackFrame.GetFileLineNumber();
-			string trace = string.Format("{0}({1}:{2})",method,Path.GetFileName(file),line);			
-			return trace;
-		}
-		public static string FormatStackTrace(string format){
-			System.Diagnostics.StackTrace stackTrace = new System.Diagnostics.StackTrace(0,true);
-			System.Diagnostics.StackFrame stackFrame = stackTrace.GetFrame(stackTrace.FrameCount -1);
-			string file = stackFrame.GetFileName();
-			string method = stackFrame.GetMethod().ToString();
-			int line = stackFrame.GetFileLineNumber();
-			string trace = string.Format(format,method,Path.GetFileName(file),line);			
-			return trace;
-		}
-		
-    }
+	}
 }
